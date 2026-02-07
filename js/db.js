@@ -11,6 +11,15 @@ db.version(6).stores({
     promotions: 'id, title, text, isActive'
 });
 
+// Initial check and auto-migration fix
+db.open().catch(async (err) => {
+    if (err.name === 'UpgradeError') {
+        console.warn("Detectada incompatibilidad de versión (ID Global). Reiniciando base de datos local...");
+        await db.delete();
+        window.location.reload();
+    }
+});
+
 async function seedDatabase() {
     const count = await db.employees.count();
     if (count === 0) {
