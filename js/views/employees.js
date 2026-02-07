@@ -244,8 +244,11 @@ window.Views.employees = async (container) => {
 
             try {
                 if (id) {
-                    await window.db.employees.update(Number(id), employeeData);
+                    // Update: id can be string or numeric from old version
+                    await window.db.employees.update(id, employeeData);
                 } else {
+                    // New: Create unique ID to avoid collisions in cloud
+                    employeeData.id = Date.now() + Math.floor(Math.random() * 1000);
                     await window.db.employees.add(employeeData);
                 }
                 modalContainer.classList.add('hidden');

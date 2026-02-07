@@ -2,13 +2,13 @@
 
 const db = new Dexie('WorkMasterDB');
 
-// Version 5: Add expiryDate and stock to products
-db.version(5).stores({
-    employees: '++id, name, email, role, hourlyRate, dailyRate',
-    workLogs: '++id, employeeId, date, status',
+// Version 6: Switch to manual IDs to avoid cloud collisions
+db.version(6).stores({
+    employees: 'id, name, email, role, hourlyRate, dailyRate',
+    workLogs: 'id, employeeId, date, status',
     settings: 'key',
-    products: '++id, name, category, buyPrice, salePrice, expiryDate, stock',
-    promotions: '++id, title, text, isActive'
+    products: 'id, name, category, buyPrice, salePrice, expiryDate, stock',
+    promotions: 'id, title, text, isActive'
 });
 
 async function seedDatabase() {

@@ -43,13 +43,19 @@
     box-sizing: border-box;
 }
 
+html,
 body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* Prohibir scroll al body */
+    position: fixed;
+    /* Clavar el body al fondo */
     font-family: var(--font-main);
     color: var(--text-primary);
     line-height: 1.5;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
     /* Permitir scroll para que las barras del navegador respondan */
 
     /* --- ATMÓSFERA 'EL MARAVILLOSO' --- */
@@ -95,8 +101,9 @@ body {
 /* Layout */
 .app-container {
     display: flex;
-    height: 100%;
-    /* No background here, letting body shine through */
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
 }
 
 /* SIDEBAR: Glass & Floating */
@@ -132,19 +139,23 @@ body {
 
 .main-content {
     flex: 1;
-    overflow-y: visible;
-    /* Dejar que el scroll lo maneje el body en móvil */
+    height: 100vh;
+    overflow-y: auto;
+    /* El contenido se desplaza aquí */
     padding: 40px;
     position: relative;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
 }
 
 @media (max-width: 768px) {
     .main-content {
         padding: 16px;
         padding-top: 10px;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
-        /* Suavidad en iOS */
+        height: 100%;
+        /* Asegurar que ocupe todo el espacio en móvil */
+        overscroll-behavior-y: contain;
+        /* Evita que el navegador arrastre el fondo */
     }
 }
 

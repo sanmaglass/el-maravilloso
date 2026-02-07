@@ -46,29 +46,26 @@ window.Sync = {
             const tables = ['employees', 'workLogs', 'products', 'promotions', 'settings'];
 
             for (const table of tables) {
-                // 1. Pull: Traer datos de la nube
+                // 1. Push: Enviar lo local a la nube primero (UPSERT)
+                const localData = await window.db[table].toArray();
+                if (localData.length > 0) {
+                    const { error: pushError } = await window.Sync.client
+                        .from(table)
+                        .upsert(localData);
+                    if (pushError) throw pushError;
+                }
+
+                // 2. Pull: Traer TODO lo de la nube y actualizar localmente
                 const { data: cloudData, error } = await window.Sync.client
                     .from(table)
                     .select('*');
 
                 if (error) throw error;
 
-                // 2. Merge simplificado: Si no existe localmente, añadir.
-                // En una app pro usaríamos timestamps (updated_at)
-                for (const item of cloudData) {
-                    const localItem = await window.db[table].get(item.id);
-                    if (!localItem) {
-                        await window.db[table].add(item);
-                    }
+                // 3. Put into Dexie (sobrescribe si existe el ID, añade si no)
+                if (cloudData && cloudData.length > 0) {
+                    await window.db[table].bulkPut(cloudData);
                 }
-
-                // 3. Push: Enviar datos locales nuevos a la nube
-                const localData = await window.db[table].toArray();
-                const { error: pushError } = await window.Sync.client
-                    .from(table)
-                    .upsert(localData);
-
-                if (pushError) throw pushError;
             }
 
             return { success: true };
