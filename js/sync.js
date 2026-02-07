@@ -28,10 +28,12 @@ window.Sync = {
                 }
 
                 console.log("Supabase verificado y listo.");
+                window.Sync.updateIndicator('connected');
                 return { success: true };
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
                 window.Sync.client = null; // Asegurar que sea null si falla
+                window.Sync.updateIndicator('error', e.message);
                 return { success: false, error: e.message };
             }
         }
@@ -40,13 +42,19 @@ window.Sync = {
 
     // Sincronización Completa
     syncAll: async () => {
-        if (!window.Sync.client) return { success: false, error: "No conectado a la nube." };
+        if (!window.Sync.client) {
+            window.Sync.updateIndicator('off');
+            return { success: false, error: "No conectado a la nube." };
+        }
         if (window.Sync.isSyncing) return { success: false, error: "Sincronización en curso..." };
 
         window.Sync.isSyncing = true;
+        window.Sync.updateIndicator('syncing');
+
         try {
             // Tablas a sincronizar
             const tables = ['employees', 'workLogs', 'products', 'promotions', 'settings'];
+            let dataChanged = false;
 
             for (const table of tables) {
                 // 1. Push: Enviar lo local a la nube primero (UPSERT)
@@ -68,15 +76,50 @@ window.Sync = {
                 // 3. Put into Dexie (sobrescribe si existe el ID, añade si no)
                 if (cloudData && cloudData.length > 0) {
                     await window.db[table].bulkPut(cloudData);
+                    dataChanged = true;
                 }
             }
 
+            if (dataChanged) {
+                window.dispatchEvent(new CustomEvent('sync-data-updated'));
+            }
+
+            window.Sync.updateIndicator('connected');
             return { success: true };
         } catch (e) {
             console.error("Sync Error:", e);
             return { success: false, error: e.message };
         } finally {
             window.Sync.isSyncing = false;
+        }
+    },
+
+    // UI Helper
+    updateIndicator: (status, errorMsg = '') => {
+        const el = document.getElementById('sync-indicator');
+        const text = document.getElementById('sync-text');
+        if (!el || !text) return;
+
+        switch (status) {
+            case 'syncing':
+                el.style.color = 'var(--accent)';
+                el.innerHTML = '<i class="ph ph-arrows-clockwise ph-spin"></i> <span id="sync-text">Sincronizando...</span>';
+                break;
+            case 'connected':
+                el.style.color = '#10b981';
+                el.innerHTML = '<i class="ph ph-cloud-check"></i> <span id="sync-text">Nube Activa</span>';
+                el.title = "Última sincronización: " + new Date().toLocaleTimeString();
+                break;
+            case 'error':
+                el.style.color = '#ef4444';
+                el.innerHTML = '<i class="ph ph-cloud-slash"></i> <span id="sync-text">Error Nube</span>';
+                el.title = errorMsg;
+                break;
+            case 'off':
+            default:
+                el.style.color = 'var(--text-muted)';
+                el.innerHTML = '<i class="ph ph-cloud-slash"></i> <span id="sync-text">Sin Nube</span>';
+                break;
         }
     },
 

@@ -1,7 +1,7 @@
 // Main App Controller (Global Scope, Loaded Last)
 
 // Application State
-const state = {
+window.state = {
     currentView: 'dashboard',
     currentUser: null
 };
@@ -66,6 +66,7 @@ async function init() {
 
                 // Navigate
                 const viewName = target.dataset.view;
+                window.state.currentView = viewName; // Update state
                 document.getElementById('page-title').textContent = target.querySelector('span').textContent;
                 if (views[viewName]) {
                     views[viewName]();
@@ -79,7 +80,16 @@ async function init() {
         });
 
         // Initial Load
+        window.state.currentView = 'dashboard';
         views.dashboard();
+
+        // Escuchar cambios de datos en segundo plano
+        window.addEventListener('sync-data-updated', () => {
+            console.log("Datos nuevos recibidos. Refrescando vista:", window.state.currentView);
+            if (views[window.state.currentView]) {
+                views[window.state.currentView]();
+            }
+        });
     } catch (err) {
         console.error("Critical Init Error:", err);
         document.body.innerHTML = `<div style="color:white; padding:50px; text-align:center;"><h1>Error de Carga</h1><p>${err.message}</p></div>`;
@@ -125,6 +135,17 @@ document.getElementById('btn-toggle-privacy').addEventListener('click', () => {
 if (localStorage.getItem('wm_privacy') === 'true') {
     document.body.classList.add('privacy-mode');
     document.getElementById('btn-toggle-privacy').innerHTML = '<i class="ph ph-eye-slash"></i>';
+}
+
+// Sync Indicator Click -> Settings
+const syncInd = document.getElementById('sync-indicator');
+if (syncInd) {
+    syncInd.style.cursor = 'pointer';
+    syncInd.addEventListener('click', () => {
+        // Find settings button and click it to navigate
+        const settingsBtn = document.querySelector('.nav-item[data-view="settings"]');
+        if (settingsBtn) settingsBtn.click();
+    });
 }
 
 // --- AUTO-LOCK SYSTEM (5 Minutes) ---
