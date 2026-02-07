@@ -42,7 +42,7 @@ async function init() {
         const syncRes = await window.Sync.init();
 
         if (syncRes.success) {
-            window.Sync.startAutoSync(10000); // 10 segundos
+            window.Sync.startAutoSync(5000); // 5 segundos
         }
 
         // Navigation Logic

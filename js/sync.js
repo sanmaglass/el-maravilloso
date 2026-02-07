@@ -76,8 +76,11 @@ window.Sync = {
 
                 // 3. Put into Dexie (sobrescribe si existe el ID, añade si no)
                 if (cloudData && cloudData.length > 0) {
-                    // Solo marcar como cambiado si realmente trajo algo que no teníamos o actualizó
                     await window.db[table].bulkPut(cloudData);
+                    dataChanged = true;
+                } else if (localData.length > 0) {
+                    // SI LA NUBE ESTÁ VACÍA PERO EL LOCAL TIENE ALGO -> Significa borrado total detectado
+                    await window.db[table].clear();
                     dataChanged = true;
                 }
             }

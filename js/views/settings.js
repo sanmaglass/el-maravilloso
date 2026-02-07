@@ -67,6 +67,23 @@ window.Views.settings = async (container) => {
                         <!-- Status text -->
                     </div>
                 </div>
+
+                <!-- DANGER ZONE -->
+                <div class="card" style="border: 1px solid #fee2e2; background: #fffafb;">
+                    <h3 style="margin-bottom:12px; display:flex; align-items:center; gap:8px; color:#b91c1c;">
+                        <i class="ph ph-warning-octagon"></i>
+                        Zona de Peligro
+                    </h3>
+                    <p style="font-size:0.85rem; color:#7f1d1d; margin-bottom:16px;">
+                        Estas acciones son irreversibles. Ten cuidado.
+                    </p>
+                    <button id="btn-nuke-all" class="btn btn-secondary" style="color:#b91c1c; border-color:#fca5a5; width:100%;">
+                        <i class="ph ph-trash"></i> BORRAR TODA LA APP (Local y Nube)
+                    </button>
+                    <p style="font-size:0.75rem; color:#991b1b; margin-top:8px; font-style:italic;">
+                        *Esto eliminará empleados, productos y jornadas en todos tus dispositivos.
+                    </p>
+                </div>
             </div>
 
             <div class="card">
@@ -168,6 +185,40 @@ window.Views.settings = async (container) => {
         } finally {
             btnSync.disabled = false;
             btnSync.innerHTML = original;
+        }
+    });
+
+    // --- NUKE ALL ACTION ---
+    document.getElementById('btn-nuke-all').addEventListener('click', async () => {
+        const pass = prompt('Esto borrará TODO en este equipo y en la NUBE. Escribe "BORRAR" para confirmar:');
+        if (pass !== 'BORRAR') return;
+
+        if (!confirm('¿ESTÁS COMPLETAMENTE SEGURO? Esta acción no se puede deshacer.')) return;
+
+        const btn = document.getElementById('btn-nuke-all');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> BORRANDO TODO...';
+        btn.disabled = true;
+
+        try {
+            // 1. Nuke Cloud (si está conectado)
+            if (window.Sync.client) {
+                await window.Sync.nukeCloud();
+            }
+
+            // 2. Clear Local DB
+            const tables = ['employees', 'workLogs', 'products', 'promotions', 'settings'];
+            for (const table of tables) {
+                await window.db[table].clear();
+            }
+
+            alert('¡Base de datos limpia! La app se reiniciará.');
+            window.location.reload();
+        } catch (e) {
+            alert('Error al borrar: ' + e.message);
+        } finally {
+            btn.innerHTML = original;
+            btn.disabled = false;
         }
     });
 
