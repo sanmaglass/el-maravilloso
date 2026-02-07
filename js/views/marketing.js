@@ -268,6 +268,7 @@ function showPromoModal() {
         };
 
         try {
+            newPromo.id = Date.now() + Math.floor(Math.random() * 1000);
             await window.db.promotions.add(newPromo);
             modalContainer.classList.add('hidden');
             renderPromos();

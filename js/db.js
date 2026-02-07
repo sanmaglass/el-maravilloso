@@ -25,6 +25,7 @@ async function seedDatabase() {
     if (count === 0) {
         console.log("Seeding database...");
         await db.employees.add({
+            id: Date.now(),
             name: "Demo Employee",
             email: "demo@example.com",
             role: "Developer",

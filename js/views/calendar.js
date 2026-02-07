@@ -254,7 +254,8 @@ async function openDayModal(dateStr) {
                 // Update
                 await window.db.workLogs.update(Number(logId), logData);
             } else {
-                // Create
+                // Create unique ID
+                logData.id = Date.now() + Math.floor(Math.random() * 1000);
                 await window.db.workLogs.add(logData);
             }
 

@@ -227,6 +227,7 @@ window.Views.calculator = async (container) => {
         };
 
         try {
+            newProduct.id = Date.now() + Math.floor(Math.random() * 1000);
             await window.db.products.add(newProduct);
             // Reset crucial fields
             inputs.name.value = '';
