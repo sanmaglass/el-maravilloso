@@ -39,7 +39,11 @@ async function init() {
         document.querySelector('.app-container').style.display = 'flex';
 
         await window.seedDatabase();
-        await window.Sync.init();
+        const syncRes = await window.Sync.init();
+
+        if (syncRes.success) {
+            window.Sync.startAutoSync(10000); // 10 segundos
+        }
 
         // Navigation Logic
         const navItems = document.querySelectorAll('.nav-item');

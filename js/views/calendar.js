@@ -171,6 +171,7 @@ async function openDayModal(dateStr) {
     window.deleteLog = async (id) => {
         if (confirm('¿Seguro que deseas eliminar este registro?')) {
             await window.db.workLogs.delete(id);
+            window.Sync.syncAll(); // Sync Inmediato
             // Reload logs & Re-render
             const newLogs = await window.db.workLogs.where('date').equals(dateStr).toArray();
             logs.length = 0; logs.push(...newLogs);
@@ -258,6 +259,9 @@ async function openDayModal(dateStr) {
                 logData.id = Date.now() + Math.floor(Math.random() * 1000);
                 await window.db.workLogs.add(logData);
             }
+
+            // Sync Inmediato
+            window.Sync.syncAll();
 
             // Refresh Modal List Intelligently
             const newLogs = await window.db.workLogs.where('date').equals(dateStr).toArray();

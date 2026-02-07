@@ -1,6 +1,7 @@
-// Supabase Sync Module
 window.Sync = {
     client: null,
+    isSyncing: false,
+    syncInterval: null,
 
     // Inicializar cliente
     init: async () => {
@@ -40,7 +41,9 @@ window.Sync = {
     // Sincronización Completa
     syncAll: async () => {
         if (!window.Sync.client) return { success: false, error: "No conectado a la nube." };
+        if (window.Sync.isSyncing) return { success: false, error: "Sincronización en curso..." };
 
+        window.Sync.isSyncing = true;
         try {
             // Tablas a sincronizar
             const tables = ['employees', 'workLogs', 'products', 'promotions', 'settings'];
@@ -72,6 +75,18 @@ window.Sync = {
         } catch (e) {
             console.error("Sync Error:", e);
             return { success: false, error: e.message };
+        } finally {
+            window.Sync.isSyncing = false;
         }
+    },
+
+    // Auto-Sync Pro: Ejecutar cada X segundos
+    startAutoSync: (intervalMs = 10000) => {
+        if (window.Sync.syncInterval) clearInterval(window.Sync.syncInterval);
+
+        console.log(`Auto-Sync activado (cada ${intervalMs / 1000}s)`);
+        window.Sync.syncInterval = setInterval(() => {
+            window.Sync.syncAll();
+        }, intervalMs);
     }
 };

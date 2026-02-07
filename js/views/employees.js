@@ -75,6 +75,7 @@ window.Views.employees = async (container) => {
     window.deleteEmployee = async (id) => {
         if (confirm('¿Eliminar este empleado? Se mantendrán sus registros históricos pero ya no aparecerá en nuevos turnos.')) {
             await window.db.employees.delete(id);
+            window.Sync.syncAll(); // Sync Inmediato
             window.Views.employees(container); // Refresh
         }
     };
@@ -251,6 +252,10 @@ window.Views.employees = async (container) => {
                     employeeData.id = Date.now() + Math.floor(Math.random() * 1000);
                     await window.db.employees.add(employeeData);
                 }
+
+                // Sync Inmediato
+                window.Sync.syncAll();
+
                 modalContainer.classList.add('hidden');
                 window.Views.employees(container);
             } catch (err) {

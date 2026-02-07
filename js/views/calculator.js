@@ -231,6 +231,10 @@ window.Views.calculator = async (container) => {
             await window.db.products.add(newProduct);
             // Reset crucial fields
             inputs.name.value = '';
+
+            // Sync Inmediato
+            window.Sync.syncAll();
+
             // Toast or visual feedback?
             alert(`¡"${name}" guardado!`);
             loadInventory(document.getElementById('inventory-list-mini'));
