@@ -9,15 +9,20 @@ window.Sync = {
 
         if (url && key) {
             try {
+                // Verificar si el SDK está cargado
+                if (typeof supabase === 'undefined') {
+                    throw new Error("El SDK de Supabase no se cargó correctamente (revisa tu conexión a internet).");
+                }
+
                 window.Sync.client = supabase.createClient(url, key);
                 console.log("Supabase inicializado correctamente.");
-                return true;
+                return { success: true };
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
-                return false;
+                return { success: false, error: e.message };
             }
         }
-        return false;
+        return { success: false, error: "Faltan credenciales." };
     },
 
     // Sincronización Completa

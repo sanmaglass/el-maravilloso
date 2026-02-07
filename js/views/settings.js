@@ -131,12 +131,12 @@ window.Views.settings = async (container) => {
         localStorage.setItem('supabase_url', url);
         localStorage.setItem('supabase_key', key);
 
-        const initialized = await window.Sync.init();
-        if (initialized) {
+        const result = await window.Sync.init();
+        if (result.success) {
             btnSync.disabled = false;
             updateStatus('<i class="ph ph-check-circle"></i> Conectado con éxito a Supabase.', 'success');
         } else {
-            updateStatus('Error de conexión. Verifica los datos.', 'error');
+            updateStatus('Error: ' + result.error, 'error');
         }
     });
 
