@@ -13,20 +13,20 @@ window.Views.security = async (container) => {
     const channelFormat = (await window.db.settings.get('nvr_channel_format'))?.value || '101'; // '101' (101, 201...) or '1' (1, 2, 3...)
 
     container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <div class="stack-on-mobile" style="justify-content:space-between; align-items:center; margin-bottom:24px;">
             <div>
                 <h1 style="margin:0; display:flex; align-items:center; gap:12px;">
                     <i class="ph ph-video-camera" style="color:var(--primary);"></i>
-                    Centro de Seguridad
+                    Seguridad
                 </h1>
-                <p style="color:var(--text-muted); margin-top:8px;">Monitoreo en tiempo real - Hikvision IP</p>
+                <p style="color:var(--text-muted); margin-top:4px;">Cámaras en vivo</p>
             </div>
             <button id="btn-config-nvr" class="btn btn-secondary">
-                <i class="ph ph-gear"></i> Configuración Avanzada
+                <i class="ph ph-gear"></i> <span class="hide-mobile">Configuración Avanzada</span><span class="show-mobile-only" style="display:none;">Ajustes</span>
             </button>
         </div>
 
-        <div id="cams-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap:20px;">
+        <div id="cams-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
             <!-- Cameras will load here -->
             <div class="loading-state" style="grid-column: 1/-1; padding: 100px;">
                 <div class="spinner"></div>

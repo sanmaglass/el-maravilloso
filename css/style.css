@@ -137,7 +137,9 @@ body {
 
 @media (max-width: 768px) {
     .main-content {
-        padding: 20px;
+        padding: 16px;
+        padding-top: 10px;
+        /* Bring content up closer to bar but keeping safe area */
     }
 }
 
@@ -317,6 +319,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 32px;
+    z-index: 1000;
 }
 
 .header-left {
@@ -332,14 +335,21 @@ body {
 @media (max-width: 768px) {
     .mobile-toggle {
         display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     #page-title {
-        font-size: 1.5rem !important;
+        font-size: 1.4rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 150px;
     }
 
     .top-bar {
-        margin-bottom: 20px;
+        margin-bottom: 24px;
+        gap: 10px;
     }
 }
 
@@ -353,9 +363,55 @@ body {
     -webkit-text-fill-color: transparent;
 }
 
+/* RESPONSIVE UTILITIES */
+.stack-on-mobile {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.responsive-grid-2-1 {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+}
+
+.responsive-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .stack-on-mobile {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .responsive-grid-2-1,
+    .responsive-grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .hide-mobile {
+        display: none !important;
+    }
+
+    .show-mobile-only {
+        display: inline-block !important;
+    }
+}
+
 .actions {
     display: flex;
     gap: 16px;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+    .actions {
+        gap: 8px;
+    }
 }
 
 /* --- PRIVACY MODE --- */
@@ -402,4 +458,71 @@ body.privacy-mode .money-sensitive:hover {
 .sidebar-overlay.active {
     opacity: 1;
     pointer-events: auto;
+}
+
+/* ADDITIONAL CALENDAR RESPONSIVENESS */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+    width: 100%;
+}
+
+.calendar-header-day {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding-bottom: 8px;
+}
+
+.calendar-day-btn {
+    aspect-ratio: 1;
+    /* Keep it square */
+    min-height: 80px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.calendar-day-empty {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-sm);
+}
+
+@media (max-width: 600px) {
+    .calendar-grid {
+        gap: 2px !important;
+    }
+
+    .calendar-day-btn {
+        min-height: unset;
+        /* Remove minimum height to let it shrink */
+        padding: 2px !important;
+        border-radius: 4px;
+        /* Sharper for small space */
+    }
+
+    .calendar-day-btn div:first-child {
+        font-size: 0.7rem !important;
+    }
+
+    .calendar-day-btn .money-sensitive {
+        display: none !important;
+        /* Hide money on very small calendar cells */
+    }
+
+    .calendar-header-day {
+        font-size: 0.7rem;
+        padding-bottom: 4px;
+    }
 }

@@ -15,9 +15,7 @@ const views = {
     marketing: () => window.Views.marketing(document.getElementById('view-container')),
     payments: () => window.Views.payments(document.getElementById('view-container')),
     security: () => window.Views.security(document.getElementById('view-container')),
-    settings: () => {
-        document.getElementById('view-container').innerHTML = '<h1>Ajustes</h1><p>Configuración global de la aplicación.</p>';
-    }
+    settings: () => window.Views.settings(document.getElementById('view-container'))
 };
 
 // Initialize App
@@ -41,6 +39,7 @@ async function init() {
         document.querySelector('.app-container').style.display = 'flex';
 
         await window.seedDatabase();
+        await window.Sync.init();
 
         // Navigation Logic
         const navItems = document.querySelectorAll('.nav-item');

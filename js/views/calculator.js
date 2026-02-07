@@ -3,7 +3,7 @@ window.Views = window.Views || {};
 
 window.Views.calculator = async (container) => {
     container.innerHTML = `
-        <div style="display:grid; grid-template-columns: 1.2fr 0.8fr; gap:24px; align-items:start;">
+        <div class="responsive-grid-2-1" style="align-items:start;">
             
             <!-- SECTION 1: CALCULATOR -->
             <div class="card">
@@ -19,13 +19,13 @@ window.Views.calculator = async (container) => {
                     </div>
 
                     <!-- COSTOS -->
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                    <div class="responsive-grid-2" style="margin-bottom:16px;">
                         <div class="form-group">
-                            <label class="form-label">Costo Compra (Total Pack)</label>
+                            <label class="form-label">Costo Pack</label>
                             <input type="number" id="calc-cost" class="form-input" placeholder="0">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Unidades por Pack</label>
+                            <label class="form-label">Unidades</label>
                             <input type="number" id="calc-units" class="form-input" value="1">
                         </div>
                     </div>
@@ -41,13 +41,13 @@ window.Views.calculator = async (container) => {
                     </div>
 
                     <!-- INVENTORY FIELDS -->
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:24px; padding:16px; background:rgba(220,38,38,0.05); border-radius:8px; border:1px dashed var(--primary);">
+                    <div class="responsive-grid-2" style="margin-bottom:24px; padding:16px; background:rgba(220,38,38,0.05); border-radius:8px; border:1px dashed var(--primary);">
                         <div class="form-group">
-                            <label class="form-label" style="color:var(--primary); font-weight:700;">Stock a Ingresar</label>
+                            <label class="form-label" style="color:var(--primary); font-weight:700;">Stock</label>
                             <input type="number" id="calc-stock" class="form-input" placeholder="Ej. 50" value="1">
                         </div>
                         <div class="form-group">
-                            <label class="form-label" style="color:var(--primary); font-weight:700;">Fecha Vencimiento</label>
+                            <label class="form-label" style="color:var(--primary); font-weight:700;">Vencimiento</label>
                             <input type="date" id="calc-expiry" class="form-input">
                         </div>
                     </div>
@@ -88,7 +88,7 @@ window.Views.calculator = async (container) => {
                             <div style="font-size:0.9rem; color:var(--text-secondary); font-weight:500;">(Redondeado al peso)</div>
                          </div>
                          
-                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; border-top:1px dashed var(--border); padding-top:16px;">
+                         <div class="responsive-grid-2" style="border-top:1px dashed var(--border); padding-top:16px;">
                             <div style="text-align:center;">
                                 <div style="font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">Ganancia Unidad</div>
                                 <div style="font-size:1.2rem; font-weight:700; color:var(--success);" id="display-profit-unit">$0</div>

@@ -11,17 +11,17 @@ window.Views.employees = async (container) => {
     const employees = await window.db.employees.toArray();
 
     container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <div class="stack-on-mobile" style="justify-content:space-between; align-items:center; margin-bottom:24px;">
             <div>
                 <h1>Personal</h1>
-                <p style="color:var(--text-muted);">Gestión de equipo y tarifas</p>
+                <p class="hide-mobile" style="color:var(--text-muted);">Gestión de equipo y tarifas</p>
             </div>
             <button class="btn btn-primary" onclick="window.showEmployeeModal()">
-                <i class="ph ph-plus"></i> Nuevo Empleado
+                <i class="ph ph-plus"></i> <span class="hide-mobile">Nuevo Empleado</span><span class="show-mobile-only" style="display:none;">Nuevo</span>
             </button>
         </div>
         
-        <div class="grid-employees" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:24px;">
+        <div class="grid-employees" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:24px;">
             ${employees.length === 0 ? '<p style="grid-column:1/-1; text-align:center; padding:40px;">No hay empleados registrados.</p>' : ''}
         </div>
     `;
@@ -51,7 +51,7 @@ window.Views.employees = async (container) => {
 
                 <div style="background:rgba(0,0,0,0.03); padding:12px; border-radius:8px; margin-bottom:16px;">
                     <div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">Jornada Laboral</div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                    <div class="responsive-grid-2">
                         <div style="font-size:0.9rem;"><i class="ph ph-clock"></i> <b>${emp.workHoursPerDay || 0}h</b> diarias</div>
                         <div style="font-size:0.9rem;"><i class="ph ph-coffee"></i> <b>${emp.breakMinutes || 0}m</b> colación</div>
                     </div>
@@ -114,7 +114,7 @@ window.Views.employees = async (container) => {
                             </p>
                         </div>
 
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin:20px 0; background:rgba(255,0,0,0.03); padding:16px; border-radius:12px; border:1px dashed var(--primary);">
+                        <div class="responsive-grid-2" style="margin:20px 0; background:rgba(255,0,0,0.03); padding:16px; border-radius:12px; border:1px dashed var(--primary);">
                             <div class="form-group">
                                 <label class="form-label" style="color:var(--primary);">Jornada Diaria (Horas)</label>
                                 <input type="number" name="workHoursPerDay" class="form-input" placeholder="Ej. 9" value="${emp?.workHoursPerDay || 9}">
@@ -137,7 +137,7 @@ window.Views.employees = async (container) => {
                         </div>
 
                         <!-- Manual Fields -->
-                        <div id="manual-fields" style="display:${(!emp?.paymentMode || emp?.paymentMode === 'manual') ? 'grid' : 'none'}; grid-template-columns: 1fr 1fr; gap:20px;">
+                        <div id="manual-fields" class="responsive-grid-2" style="display:${(!emp?.paymentMode || emp?.paymentMode === 'manual') ? 'grid' : 'none'};">
                             <div class="form-group">
                                 <label class="form-label">Valor Hora ($)</label>
                                 <input type="number" name="hourlyRate" class="form-input" placeholder="0" value="${emp?.hourlyRate || ''}">

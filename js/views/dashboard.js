@@ -4,18 +4,18 @@ window.Views = window.Views || {};
 window.Views.dashboard = async (container) => {
     // Basic Layout
     container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <div class="stack-on-mobile" style="justify-content:space-between; align-items:center; margin-bottom:24px;">
              <!-- Header Title Placeholder -->
-             <div style="font-size:1.5rem; font-weight:bold; color:var(--text-primary);">Resumen General</div>
+             <div class="hide-mobile" style="font-size:1.5rem; font-weight:bold; color:var(--text-primary);">Resumen General</div>
              
              <div style="display:flex; gap:12px;">
-                <button id="btn-export-excel" class="btn" style="background:var(--success); color:white; border:none; display:flex; gap:8px; align-items:center; box-shadow:0 4px 6px rgba(0, 200, 83, 0.2);">
+                <button id="btn-export-excel" class="btn" style="background:var(--success); color:white; border:none; display:flex; gap:8px; align-items:center; box-shadow:0 4px 6px rgba(0, 200, 83, 0.2); flex:1;">
                     <i class="ph ph-file-xls" style="font-size:1.2rem;"></i> 
-                    <span>Exportar Excel</span>
+                    <span class="hide-mobile">Exportar Excel</span>
                 </button>
-                <button id="btn-whatsapp-report" class="btn" style="background:#25D366; color:white; border:none; display:flex; gap:8px; align-items:center; box-shadow:0 4px 6px rgba(37, 211, 102, 0.3);">
+                <button id="btn-whatsapp-report" class="btn" style="background:#25D366; color:white; border:none; display:flex; gap:8px; align-items:center; box-shadow:0 4px 6px rgba(37, 211, 102, 0.3); flex:1;">
                     <i class="ph ph-whatsapp-logo" style="font-size:1.2rem;"></i> 
-                    <span>Reporte WhatsApp</span>
+                    <span class="hide-mobile">WhatsApp</span>
                 </button>
              </div>
         </div>
@@ -48,7 +48,7 @@ window.Views.dashboard = async (container) => {
             </div>
         </div>
         
-        <div style="margin-top: 32px; display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+        <div class="responsive-grid-2-1" style="margin-top: 32px;">
             <div class="card">
                 <h3 style="margin-bottom:16px; color:var(--text-primary);">Tendencia de Gastos (Anual)</h3>
                 <div style="height:200px; width:100%;">

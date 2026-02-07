@@ -280,5 +280,73 @@ window.Utils = {
                 </div>
              `;
         }).join('') + `<div style="text-align:center; font-size:0.8rem; margin-top:8px;"><a href="#" onclick="document.querySelector('[data-view=employees]').click()" style="color:var(--primary);">Configurar</a></div>`;
+    },
+
+    // --- DATABASE SYNC UTILITIES ---
+
+    // Export all Dexie tables to a single JSON file
+    exportDatabase: async () => {
+        try {
+            const data = {
+                version: 1,
+                timestamp: new Date().toISOString(),
+                tables: {}
+            };
+
+            const tableNames = ['employees', 'workLogs', 'settings', 'products', 'promotions'];
+            for (const name of tableNames) {
+                data.tables[name] = await window.db[name].toArray();
+            }
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Copia_El_Maravilloso_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            return true;
+        } catch (e) {
+            console.error('Export error:', e);
+            throw e;
+        }
+    },
+
+    // Import data from a JSON file (Overwrites existing data)
+    importDatabase: async (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    // Basic validation
+                    if (!data.tables || !data.version) {
+                        throw new Error("El archivo no es una copia de seguridad válida.");
+                    }
+
+                    if (!confirm("Esto sobrescribirá todos tus datos actuales de forma permanente. ¿Continuar?")) {
+                        return resolve(false);
+                    }
+
+                    // Clear and Populate
+                    for (const tableName in data.tables) {
+                        if (window.db[tableName]) {
+                            await window.db[tableName].clear();
+                            await window.db[tableName].bulkAdd(data.tables[tableName]);
+                        }
+                    }
+
+                    resolve(true);
+                } catch (err) {
+                    reject(err);
+                }
+            };
+            reader.onerror = () => reject(new Error("Error leyendo el archivo."));
+            reader.readAsText(file);
+        });
     }
 };

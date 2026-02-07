@@ -8,14 +8,13 @@ window.Views.calendar = async (container) => {
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
     container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-            <h1>Calendario de Trabajo</h1>
-            <div style="font-size:1.2rem; font-weight:600; color:var(--primary);">${window.Utils.formatDate(now, { month: 'long', year: 'numeric' })}</div>
+        <div class="calendar-header-mobile" style="margin-bottom:16px;">
+            <div style="font-size:1.1rem; font-weight:700; color:var(--primary); text-transform:capitalize;">${window.Utils.formatDate(now, { month: 'long', year: 'numeric' })}</div>
         </div>
         
-        <div class="calendar-grid" style="display:grid; grid-template-columns: repeat(7, 1fr); gap:12px;">
+        <div class="calendar-grid">
             <!-- Headers -->
-            ${['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(d => `<div style="text-align:center; color:var(--text-muted); font-size:0.9rem; padding-bottom:8px;">${d}</div>`).join('')}
+            ${['D', 'L', 'M', 'M', 'J', 'V', 'S'].map(d => `<div class="calendar-header-day">${d}</div>`).join('')}
             
             <!-- Days injected here -->
             <div id="calendar-days" style="display:contents;"></div>
@@ -29,7 +28,7 @@ window.Views.calendar = async (container) => {
     let htmlDays = '';
     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
     for (let i = 0; i < firstDayIndex; i++) {
-        htmlDays += `<div style="height:100px; background:rgba(255,255,255,0.02); border-radius:var(--radius-sm);"></div>`;
+        htmlDays += `<div class="calendar-day-empty"></div>`;
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -42,14 +41,14 @@ window.Views.calendar = async (container) => {
             indicators = `
                 <div style="margin-top:4px; font-size:0.75rem;">
                     <div style="color:var(--accent);">${dayLogs.length} reg.</div>
-                    <div style="color:var(--text-muted);">${window.Utils.formatCurrency(dayLogs.reduce((acc, curr) => acc + (curr.payAmount || 0), 0))}</div>
+                    <div class="money-sensitive" style="color:var(--text-muted);">${window.Utils.formatCurrency(dayLogs.reduce((acc, curr) => acc + (curr.payAmount || 0), 0))}</div>
                 </div>
             `;
         }
 
         htmlDays += `
-            <button class="calendar-day-btn" data-date="${dateStr}" style="height:100px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px; text-align:left; cursor:pointer; color:var(--text-primary); transition:all 0.2s;">
-                <div style="font-weight:600; font-size:0.9rem;">${day}</div>
+            <button class="calendar-day-btn" data-date="${dateStr}" style="background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:6px; text-align:left; cursor:pointer; color:var(--text-primary); transition:all 0.2s; display:flex; flex-direction:column; justify-content:space-between;">
+                <div style="font-weight:600; font-size:0.85rem;">${day}</div>
                 ${indicators}
             </button>
         `;

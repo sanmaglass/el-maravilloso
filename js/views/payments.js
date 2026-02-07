@@ -9,29 +9,23 @@ window.Views.payments = async (container) => {
     const currentYear = now.getFullYear();
 
     container.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <div class="stack-on-mobile" style="justify-content:space-between; align-items:center; margin-bottom:24px;">
             <div>
                 <h1 style="margin:0; display:flex; align-items:center; gap:12px;">
                     <i class="ph ph-wallet" style="color:var(--primary);"></i>
-                    Gestión de Pagos
+                    <span class="hide-mobile">Gestión de</span> Pagos
                 </h1>
-                <p style="color:var(--text-muted); margin-top:8px;">Control visual de períodos y pagos del personal</p>
+                <p style="color:var(--text-muted); margin-top:4px;">Control de períodos y planillas</p>
             </div>
             <div style="display:flex; gap:12px; align-items:center;">
-                <label style="font-size:0.9rem; color:var(--text-secondary); font-weight:600;">Semana inicia:</label>
                 <select id="week-start-selector" class="form-input" style="width:auto; padding:8px 16px;">
-                    <option value="0" ${weekStartDay === 0 ? 'selected' : ''}>Domingo</option>
-                    <option value="1" ${weekStartDay === 1 ? 'selected' : ''}>Lunes</option>
-                    <option value="2" ${weekStartDay === 2 ? 'selected' : ''}>Martes</option>
-                    <option value="3" ${weekStartDay === 3 ? 'selected' : ''}>Miércoles</option>
-                    <option value="4" ${weekStartDay === 4 ? 'selected' : ''}>Jueves</option>
-                    <option value="5" ${weekStartDay === 5 ? 'selected' : ''}>Viernes</option>
-                    <option value="6" ${weekStartDay === 6 ? 'selected' : ''}>Sábado</option>
+                    <option value="0" ${weekStartDay === 0 ? 'selected' : ''}>Dom</option>
+                    <option value="1" ${weekStartDay === 1 ? 'selected' : ''}>Lun</option>
                 </select>
             </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px;">
+        <div class="responsive-grid-2-1">
             <!-- Calendar Section -->
             <div class="card" style="background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%); border: 2px solid var(--primary); box-shadow: 0 10px 40px rgba(220, 38, 38, 0.15);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:2px solid rgba(220, 38, 38, 0.1);">
