@@ -111,12 +111,21 @@ window.Views.settings = async (container) => {
     const updateStatus = (msg, type = 'info') => {
         cloudStatus.style.display = 'block';
         cloudStatus.innerHTML = msg;
-        cloudStatus.style.color = type === 'error' ? 'var(--danger)' : (type === 'success' ? 'var(--success)' : 'var(--text-muted)');
+        cloudStatus.style.color = type === 'error' ? '#ef4444' : (type === 'success' ? '#10b981' : 'var(--text-muted)');
     };
 
+    // Verificar conexión al cargar
     if (supaUrl.value && supaKey.value) {
-        btnSync.disabled = false;
-        updateStatus('<i class="ph ph-check-circle"></i> Configurado. Listo para sincronizar.');
+        btnSync.disabled = true; // Deshabilitar hasta verificar
+        updateStatus('<i class="ph ph-spinner-gap ph-spin"></i> Verificando conexión...');
+        window.Sync.init().then(result => {
+            if (result.success) {
+                btnSync.disabled = false;
+                updateStatus('<i class="ph ph-check-circle"></i> Conectado y listo.', 'success');
+            } else {
+                updateStatus('<i class="ph ph-warning"></i> Fallo de conexión: ' + result.error, 'error');
+            }
+        });
     }
 
     btnConnect.addEventListener('click', async () => {

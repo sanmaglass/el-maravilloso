@@ -9,16 +9,28 @@ window.Sync = {
 
         if (url && key) {
             try {
-                // Verificar si el SDK está cargado
                 if (typeof supabase === 'undefined') {
-                    throw new Error("El SDK de Supabase no se cargó correctamente (revisa tu conexión a internet).");
+                    throw new Error("El SDK de Supabase no se cargó. Revisa tu conexión a internet.");
                 }
 
                 window.Sync.client = supabase.createClient(url, key);
-                console.log("Supabase inicializado correctamente.");
+
+                // PRUEBA DE CONEXIÓN REAL: Intentar leer una tabla (ej. settings)
+                // Usamos un limit(0) para que sea rápido y no traiga datos
+                const { error } = await window.Sync.client.from('settings').select('key', { count: 'exact', head: true }).limit(1);
+
+                if (error) {
+                    // Si el error es de RLS o API Key, lo capturamos
+                    if (error.code === 'PGRST301') throw new Error("API Key inválida.");
+                    if (error.code === '42P01') throw new Error("Las tablas no existen. ¿Corriste el script SQL?");
+                    throw new Error(error.message);
+                }
+
+                console.log("Supabase verificado y listo.");
                 return { success: true };
             } catch (e) {
                 console.error("Error inicializando Supabase:", e);
+                window.Sync.client = null; // Asegurar que sea null si falla
                 return { success: false, error: e.message };
             }
         }
