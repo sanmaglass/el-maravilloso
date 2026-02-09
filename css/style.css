@@ -120,20 +120,62 @@ body {
     box-shadow: 10px 0 40px rgba(230, 0, 0, 0.05);
     z-index: 2000;
     transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* SCROLL FIXES */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Suavidad en iOS */
+    height: 100vh;
+    /* Asegurar altura completa */
 }
 
 /* Sidebar Responsive */
 @media (max-width: 768px) {
     .sidebar {
         position: fixed;
-        left: -300px;
+        left: -320px;
+        /* Ocultar completamente */
         top: 0;
         bottom: 0;
         width: 280px;
+        padding: 20px 16px;
+        /* Menos padding lateral */
     }
 
     .sidebar.open {
         left: 0;
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+        /* Sombra más fuerte al abrir */
+    }
+
+    /* Ajustes de Marca en Móvil */
+    .brand {
+        margin-bottom: 30px;
+        /* Menos espacio */
+    }
+
+    .brand img {
+        max-height: 80px;
+        /* Logo más pequeño */
+    }
+
+    /* Ajustes de Items de Menú en Móvil */
+    .nav-item {
+        padding: 12px 16px;
+        min-height: 48px;
+        /* Touch target size */
+        font-size: 0.95rem;
+        /* Letra un poco más chica pero legible */
+    }
+
+    .nav-item i {
+        font-size: 1.2rem;
+    }
+
+    /* Perfil más compacto */
+    .user-profile {
+        padding-top: 16px;
+        margin-top: 20px;
     }
 }
 
