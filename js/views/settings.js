@@ -49,18 +49,33 @@ window.Views.settings = async (container) => {
                         <label class="form-label">Project URL</label>
                         <input type="text" id="supa-url" class="form-input" placeholder="https://xyz.supabase.co">
                     </div>
+                    
                     <div class="form-group" style="margin-bottom:20px;">
                         <label class="form-label">Anon Key</label>
-                        <input type="password" id="supa-key" class="form-input" placeholder="Tu API Key Pública">
+                        <div style="display:flex; gap:8px;">
+                            <input type="password" id="supa-key" class="form-input" placeholder="Tu API Key Pública" style="flex:1;">
+                            <button id="btn-toggle-key" class="btn btn-secondary" style="padding:0 12px;" title="Mostrar/Ocultar">
+                                <i class="ph ph-eye"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <div style="display:flex; gap:12px;">
+                    <div style="display:flex; gap:12px; margin-bottom:16px;">
                         <button id="btn-connect-cloud" class="btn btn-secondary" style="flex:1;">
                             <i class="ph ph-plug"></i> Conectar
                         </button>
                         <button id="btn-sync-now" class="btn btn-primary" style="flex:1;" disabled>
                             <i class="ph ph-arrows-clockwise"></i> Sincronizar Ahora
                         </button>
+                    </div>
+
+                    <!-- Botón Generar QR -->
+                    <button id="btn-gen-qr" class="btn btn-secondary" style="width:100%; margin-bottom:10px; border-color:var(--accent); color:var(--accent);">
+                        <i class="ph ph-qr-code"></i> Generar QR de Conexión
+                    </button>
+                    <div id="qr-container" style="display:none; text-align:center; padding:15px; background:white; border-radius:12px; margin-top:10px;">
+                        <div id="qrcode"></div>
+                        <p style="font-size:0.8rem; color:#666; margin-top:10px;">Escanea esto con tu celular para copiar las claves.</p>
                     </div>
 
                     <div id="cloud-status" style="margin-top:16px; font-size:0.85rem; padding:8px; border-radius:6px; background:rgba(0,0,0,0.03); display:none;">
@@ -89,7 +104,7 @@ window.Views.settings = async (container) => {
             <div class="card">
                 <h3 style="margin-bottom:16px;">Acerca de la App</h3>
                 <div style="font-size:0.9rem; color:var(--text-muted); line-height:1.6;">
-                    <p><strong>El Maravilloso v1.5</strong></p>
+                    <p><strong>El Maravilloso v1.6</strong></p>
                     <p>App de Gestión Integral</p>
                     <hr style="margin:12px 0; border:none; border-top:1px solid var(--border);">
                     <p>Desarrollada para control de personal, inventario y marketing.</p>
@@ -120,6 +135,9 @@ window.Views.settings = async (container) => {
     const btnConnect = document.getElementById('btn-connect-cloud');
     const btnSync = document.getElementById('btn-sync-now');
     const cloudStatus = document.getElementById('cloud-status');
+    const btnToggleKey = document.getElementById('btn-toggle-key');
+    const btnGenQr = document.getElementById('btn-gen-qr');
+    const qrContainer = document.getElementById('qr-container');
 
     // Cargar valores guardados
     supaUrl.value = localStorage.getItem('supabase_url') || '';
@@ -130,6 +148,38 @@ window.Views.settings = async (container) => {
         cloudStatus.innerHTML = msg;
         cloudStatus.style.color = type === 'error' ? '#ef4444' : (type === 'success' ? '#10b981' : 'var(--text-muted)');
     };
+
+    // Toggle Visibility
+    btnToggleKey.addEventListener('click', () => {
+        const type = supaKey.getAttribute('type') === 'password' ? 'text' : 'password';
+        supaKey.setAttribute('type', type);
+        btnToggleKey.innerHTML = type === 'text' ? '<i class="ph ph-eye-slash"></i>' : '<i class="ph ph-eye"></i>';
+    });
+
+    // Generate QR
+    btnGenQr.addEventListener('click', () => {
+        const url = supaUrl.value.trim();
+        const key = supaKey.value.trim();
+
+        if (!url || !key) {
+            alert("Primero ingresa y guarda (Conectar) la URL y Key.");
+            return;
+        }
+
+        qrContainer.style.display = 'block';
+        document.getElementById('qrcode').innerHTML = ""; // Clear prev
+
+        const qrData = JSON.stringify({ u: url, k: key });
+
+        new QRCode(document.getElementById('qrcode'), {
+            text: qrData,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    });
 
     // Verificar conexión al cargar
     if (supaUrl.value && supaKey.value) {
