@@ -429,6 +429,9 @@ window.Views.settings = async (container) => {
                 await window.db[table].clear();
             }
 
+            // 3. Set flag to prevent auto-seeding
+            localStorage.setItem('wm_skip_seed', 'true');
+
             alert('¡Base de datos limpia! La app se reiniciará.');
             window.location.reload();
         } catch (e) {
