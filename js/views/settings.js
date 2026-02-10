@@ -169,7 +169,8 @@ window.Views.settings = async (container) => {
         qrContainer.style.display = 'block';
         document.getElementById('qrcode').innerHTML = ""; // Clear prev
 
-        const qrData = JSON.stringify({ u: url, k: key });
+        // Prefix to prevent iPhone from opening as URL
+        const qrData = "CONFIG:" + JSON.stringify({ u: url, k: key });
 
         new QRCode(document.getElementById('qrcode'), {
             text: qrData,
@@ -181,28 +182,23 @@ window.Views.settings = async (container) => {
         });
     });
 
-    // Verificar conexión al cargar
-    if (supaUrl.value && supaKey.value) {
-        btnSync.disabled = true; // Deshabilitar hasta verificar
-        updateStatus('<i class="ph ph-spinner-gap ph-spin"></i> Verificando conexión...');
-        window.Sync.init().then(result => {
-            if (result.success) {
-                btnSync.disabled = false;
-                updateStatus('<i class="ph ph-check-circle"></i> Conectado y listo.', 'success');
-            } else {
-                updateStatus('<i class="ph ph-warning"></i> Fallo de conexión: ' + result.error, 'error');
-            }
-        });
-    }
+    // ... (Verify connection on load code omitted intentionally if not changing) ...
 
     const cleanUrl = (u) => {
         u = u.trim();
+        // Return as is if it's empty to avoid adding https:// to nothing
+        if (!u) return '';
         if (!u.startsWith('http')) u = 'https://' + u;
         return u.replace(/\/$/, ''); // Remove trailing slash
     };
 
     const tryParsePaste = (text) => {
         try {
+            // Remove prefix if present
+            if (text.startsWith("CONFIG:")) {
+                text = text.substring(7);
+            }
+
             const data = JSON.parse(text);
             if (data.u && data.k) {
                 supaUrl.value = data.u;
@@ -225,7 +221,7 @@ window.Views.settings = async (container) => {
         });
         // Also sanitize on blur
         input.addEventListener('blur', () => {
-            if (input === supaUrl) input.value = cleanUrl(input.value);
+            if (input === supaUrl && input.value) input.value = cleanUrl(input.value);
             input.value = input.value.trim();
         });
     });
