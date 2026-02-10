@@ -77,15 +77,19 @@ window.Sync = {
                 const orderKey = map.orderBy || 'id';
 
                 // 1. Push: Enviar lo local a la nube primero (UPSERT)
+                // FILTER OUT deleted records - don't upload them to cloud
                 const localData = await window.db[localName].toArray();
-                if (localData.length > 0) {
+                const activeLocalData = localName === 'settings' ? localData : localData.filter(item => !item.deleted);
+
+                if (activeLocalData.length > 0) {
                     const { error: pushError } = await window.Sync.client
                         .from(remoteName)
-                        .upsert(localData);
+                        .upsert(activeLocalData);
                     if (pushError) throw pushError;
                 }
 
                 // 2. Pull: Traer TODO lo de la nube y actualizar localmente
+                // FILTER OUT deleted records - don't download old deleted data
                 const { data: cloudData, error } = await window.Sync.client
                     .from(remoteName)
                     .select('*')
@@ -93,11 +97,16 @@ window.Sync = {
 
                 if (error) throw error;
 
+                // Filter out deleted records from cloud data (except settings table)
+                const activeCloudData = (cloudData && localName !== 'settings')
+                    ? cloudData.filter(item => !item.deleted)
+                    : cloudData;
+
                 // 3. Put into Dexie (sobrescribe si existe el ID, añade si no)
-                if (cloudData && cloudData.length > 0) {
-                    await window.db[localName].bulkPut(cloudData);
+                if (activeCloudData && activeCloudData.length > 0) {
+                    await window.db[localName].bulkPut(activeCloudData);
                     dataChanged = true;
-                } else if (localData.length > 0) {
+                } else if (activeLocalData.length > 0) {
                     // SI LA NUBE ESTÁ VACÍA PERO EL LOCAL TIENE ALGO -> Significa borrado total detectado
                     await window.db[localName].clear();
                     dataChanged = true;
