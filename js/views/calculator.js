@@ -22,7 +22,7 @@ window.Views.calculator = async (container) => {
                     <div class="responsive-grid-2" style="margin-bottom:16px;">
                         <div class="form-group">
                             <label class="form-label">Costo Pack</label>
-                            <input type="number" id="calc-cost" class="form-input" placeholder="0">
+                            <input type="number" id="calc-cost" class="form-input" placeholder="0" autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Unidades</label>
