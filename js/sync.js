@@ -59,23 +59,34 @@ window.Sync = {
         window.Sync.updateIndicator('syncing');
 
         try {
-            // Tablas a sincronizar
-            const tables = ['employees', 'workLogs', 'products', 'promotions', 'settings'];
+            // Tablas a sincronizar (Mapeo Local -> Remoto)
+            // Postgres suele usar minúsculas, Dexie usa CamelCase
+            const tableMap = [
+                { local: 'employees', remote: 'employees' },
+                { local: 'workLogs', remote: 'worklogs' }, // FIX: Lowercase for Postgres
+                { local: 'products', remote: 'products' },
+                { local: 'promotions', remote: 'promotions' },
+                { local: 'settings', remote: 'settings' }
+            ];
+
             let dataChanged = false;
 
-            for (const table of tables) {
+            for (const map of tableMap) {
+                const localName = map.local;
+                const remoteName = map.remote;
+
                 // 1. Push: Enviar lo local a la nube primero (UPSERT)
-                const localData = await window.db[table].toArray();
+                const localData = await window.db[localName].toArray();
                 if (localData.length > 0) {
                     const { error: pushError } = await window.Sync.client
-                        .from(table)
+                        .from(remoteName)
                         .upsert(localData);
                     if (pushError) throw pushError;
                 }
 
                 // 2. Pull: Traer TODO lo de la nube y actualizar localmente
                 const { data: cloudData, error } = await window.Sync.client
-                    .from(table)
+                    .from(remoteName)
                     .select('*')
                     .order('id', { ascending: true }); // Ordenar para estabilizar y evitar caches
 
@@ -83,11 +94,11 @@ window.Sync = {
 
                 // 3. Put into Dexie (sobrescribe si existe el ID, añade si no)
                 if (cloudData && cloudData.length > 0) {
-                    await window.db[table].bulkPut(cloudData);
+                    await window.db[localName].bulkPut(cloudData);
                     dataChanged = true;
                 } else if (localData.length > 0) {
                     // SI LA NUBE ESTÁ VACÍA PERO EL LOCAL TIENE ALGO -> Significa borrado total detectado
-                    await window.db[table].clear();
+                    await window.db[localName].clear();
                     dataChanged = true;
                 }
             }
