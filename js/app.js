@@ -47,7 +47,11 @@ async function init() {
         const syncRes = await window.Sync.init();
 
         if (syncRes.success) {
-            window.Sync.startAutoSync(5000); // 5 segundos
+            // Initialize WebSocket real-time sync (enterprise-grade)
+            await window.Sync.initRealtimeSync();
+
+            // Start polling as fallback (60s instead of 5s)
+            window.Sync.startAutoSync(60000); // 1 minute
         }
 
         // Navigation Logic

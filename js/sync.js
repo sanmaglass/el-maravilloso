@@ -2,6 +2,8 @@ window.Sync = {
     client: null,
     isSyncing: false,
     syncInterval: null,
+    realtimeChannel: null,
+    isRealtimeActive: false,
 
     // Inicializar cliente
     init: async () => {
@@ -159,6 +161,11 @@ window.Sync = {
                 el.style.color = 'var(--accent)';
                 el.innerHTML = '<i class="ph ph-arrows-clockwise ph-spin"></i> <span id="sync-text">Sincronizando...</span>';
                 break;
+            case 'realtime':
+                el.style.color = '#8b5cf6';
+                el.innerHTML = '<i class="ph ph-broadcast"></i> <span id="sync-text">Tiempo Real</span>';
+                el.title = errorMsg || 'WebSocket conectado - Sincronización instantánea';
+                break;
             case 'connected':
                 el.style.color = '#10b981';
                 el.innerHTML = `<i class="ph ph-cloud-check"></i> <span id="sync-text">${errorMsg || 'En Línea'}</span>`;
@@ -177,14 +184,96 @@ window.Sync = {
         }
     },
 
-    // Auto-Sync Pro: Ejecutar cada X segundos
-    startAutoSync: (intervalMs = 10000) => {
+    // Auto-Sync Pro: Ejecutar cada X segundos (FALLBACK when WebSocket disconnected)
+    startAutoSync: (intervalMs = 60000) => {
         if (window.Sync.syncInterval) clearInterval(window.Sync.syncInterval);
 
-        console.log(`Auto-Sync activado (cada ${intervalMs / 1000}s)`);
+        console.log(`Polling fallback activado (cada ${intervalMs / 1000}s)`);
         window.Sync.syncInterval = setInterval(() => {
-            window.Sync.syncAll();
+            // Only poll if WebSocket is NOT active
+            if (!window.Sync.isRealtimeActive) {
+                window.Sync.syncAll();
+            }
         }, intervalMs);
+    },
+
+    // ===== WEBSOCKET REAL-TIME SYNC =====
+    initRealtimeSync: async function () {
+        if (!window.Sync.client) {
+            console.warn('No Supabase client - skipping realtime');
+            return;
+        }
+
+        try {
+            console.log('🔌 Initializing Supabase Realtime...');
+
+            // Create a single channel for all table changes
+            window.Sync.realtimeChannel = window.Sync.client
+                .channel('db-changes')
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'employees' },
+                    (payload) => window.Sync.handleRealtimeChange('employees', payload)
+                )
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'worklogs' },
+                    (payload) => window.Sync.handleRealtimeChange('workLogs', payload)
+                )
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'products' },
+                    (payload) => window.Sync.handleRealtimeChange('products', payload)
+                )
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'promotions' },
+                    (payload) => window.Sync.handleRealtimeChange('promotions', payload)
+                )
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        console.log('✅ Realtime connected!');
+                        window.Sync.isRealtimeActive = true;
+                        window.Sync.updateIndicator('realtime', 'Sincronización en Tiempo Real');
+                    } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+                        console.warn('❌ Realtime disconnected, using polling fallback');
+                        window.Sync.isRealtimeActive = false;
+                        window.Sync.updateIndicator('connected', 'Polling (WebSocket caído)');
+                    }
+                });
+
+        } catch (error) {
+            console.error('Realtime init error:', error);
+            window.Sync.isRealtimeActive = false;
+        }
+    },
+
+    // Handle incoming real-time changes
+    handleRealtimeChange: async function (localTableName, payload) {
+        console.log(`📡 Realtime ${payload.eventType} on ${localTableName}:`, payload.new || payload.old);
+
+        try {
+            const record = payload.new || payload.old;
+
+            // Skip deleted records from sync
+            if (record && record.deleted && localTableName !== 'settings') {
+                console.log('Skipping deleted record from realtime');
+                return;
+            }
+
+            if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+                // Upsert into local DB
+                await window.db[localTableName].put(record);
+            } else if (payload.eventType === 'DELETE') {
+                // Remove from local DB (hard delete from cloud = hard delete locally)
+                await window.db[localTableName].delete(record.id);
+            }
+
+            // Trigger view refresh
+            window.dispatchEvent(new CustomEvent('sync-data-updated'));
+
+            // Update indicator
+            window.Sync.updateIndicator('realtime', 'Sincronización en Tiempo Real');
+
+        } catch (error) {
+            console.error('Error handling realtime change:', error);
+        }
     },
 
     // DELETE ALL DATA FROM CLOUD (DANGER)
