@@ -21,7 +21,8 @@ const views = {
 // Initialize App
 async function init() {
     try {
-        // --- AUTH CHECK ---
+        // --- AUTH CHECK (DISABLED for faster loading) ---
+        /* 
         const isAuth = sessionStorage.getItem('wm_auth');
         if (!isAuth) {
             // Show Login View, bypass standard app load
@@ -34,6 +35,10 @@ async function init() {
             window.Views.login(loginContainer);
             return; // Stop initialization
         }
+        */
+
+        // Auto-authenticate for faster loading
+        sessionStorage.setItem('wm_auth', 'true');
 
         // If Auth passed, ensure main layout is visible
         document.querySelector('.app-container').style.display = 'flex';
